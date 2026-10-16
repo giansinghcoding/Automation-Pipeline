@@ -1,6 +1,5 @@
-// ===================================================
+
 // Notion API helpers (NO secrets hardcoded)
-// ===================================================
 function getNotionHeaders_() {
   return {
     "Authorization": "Bearer " + getNotionToken_(),
@@ -9,9 +8,8 @@ function getNotionHeaders_() {
   };
 }
 
-// ===================================================
+
 // CREATE
-// ===================================================
 function createNotionPage() {
   const url = "https://api.notion.com/v1/pages";
 
@@ -66,9 +64,8 @@ function readDatabase() {
   }
 }
 
-// ===================================================
+
 // READ (search by title keyword)
-// ===================================================
 function searchDatabaseByTitle(keyword) {
   const dbId = getNotionDatabaseId_();
   const url = `https://api.notion.com/v1/databases/${dbId}/query`;
@@ -102,9 +99,8 @@ function searchDatabaseByTitle(keyword) {
   }
 }
 
-// ===================================================
+
 // UPDATE
-// ===================================================
 function updatePage(pageId) {
   const url = `https://api.notion.com/v1/pages/${pageId}`;
 
@@ -131,9 +127,8 @@ function updatePage(pageId) {
   Logger.log("Update Response: " + response.getContentText());
 }
 
-// ===================================================
+
 // DELETE (archive)
-// ===================================================
 function archivePage(pageId) {
   const url = `https://api.notion.com/v1/pages/${pageId}`;
 
@@ -150,9 +145,8 @@ function archivePage(pageId) {
   Logger.log("Archive Response: " + response.getContentText());
 }
 
-// ===================================================
+
 // PDF → TXT → CSV pipeline (NO secrets hardcoded)
-// ===================================================
 function pdfToCSV_Transactions() {
   const API_KEY = getPdfCoApiKey_();
   const SOURCE_FOLDER_ID = getSourceFolderId_();
@@ -170,7 +164,7 @@ function pdfToCSV_Transactions() {
   const pdfName = pdfFile.getName();
   Logger.log(`📄 Found PDF: ${pdfName}`);
 
-  // === Upload to PDF.co ===
+  //Upload to PDF.co 
   const uploadRes = UrlFetchApp.fetch("https://api.pdf.co/v1/file/upload", {
     method: "post",
     headers: { "x-api-key": API_KEY },
@@ -182,7 +176,7 @@ function pdfToCSV_Transactions() {
   const uploadedUrl = uploadJson.url;
   Logger.log(`☁️ Uploaded to PDF.co: ${uploadedUrl}`);
 
-  // === Convert to text with inline fallback ===
+  // Convert to text with inline fallback
   const convertRes = UrlFetchApp.fetch("https://api.pdf.co/v1/pdf/convert/to/text", {
     method: "post",
     headers: { "x-api-key": API_KEY, "Content-Type": "application/json" },
@@ -220,9 +214,7 @@ function pdfToCSV_Transactions() {
   Logger.log(`📁 CSV saved: ${csvFile.getUrl()}`);
 }
 
-// ===================================================
-// 🧠 Transaction Parser (your full logic, unchanged)
-// ===================================================
+//  Transaction Parser (your full logic, unchanged)
 function parseTransactionsFromTxt(rawText) {
   const lines = rawText
     .replace(/\r/g, "")
@@ -269,7 +261,7 @@ function parseTransactionsFromTxt(rawText) {
     const dm = line.match(monthRe);
     if (dm) currentDate = dm[0];
 
-    // === E-Transfers ===
+    // E-Transfers 
     if (eTransferRe.test(line)) {
       const idMatch = line.match(/\d{9,14}/); // extract long ID
       let amount = null, amountLine = line;
@@ -318,7 +310,7 @@ function parseTransactionsFromTxt(rawText) {
       continue;
     }
 
-    // === Other Transactions ===
+    //Other Transactions
     const amount = pickAmount(line);
     if (!amount || !currentDate) continue;
 
